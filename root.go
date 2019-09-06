@@ -9,9 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var logger io.WriteCloser
+type RootCommand struct {
+	*cobra.Command
 
-func RootCommand(short string, options *logging.Options, pre, post CommandFunc) *cobra.Command {
+	Logger io.WriteCloser
+}
+
+func Root(short string, options *logging.Options, pre, post CommandFunc) *RootCommand {
+	var logger io.WriteCloser
+
 	c := &CommandBuilder{
 		Command: &cobra.Command{
 			Use:   "",
@@ -40,8 +46,11 @@ func RootCommand(short string, options *logging.Options, pre, post CommandFunc) 
 		},
 	}
 
-	return c.
-		With(VerboseFlag).
-		With(QuietFlag).
-		Command
+	return &RootCommand{
+		Command: c.
+			With(VerboseFlag).
+			With(QuietFlag).
+			Command,
+		Logger: logger,
+	}
 }
